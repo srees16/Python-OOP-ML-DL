@@ -13,14 +13,16 @@ xTrain,yTrain,xTest,yTest=tts(x,y,test_size=0.2,random_state=0)
 from sklearn.preprocessing import StandardScaler
 ss=StandardScaler()
 xTrain=ss.fit_transform(xTrain)
-xTest=ss.fit_transform(xTest)
+xTest=ss.fit_transform([xTest])
 #Applying PCA
+'''
 #Checking for the most significant components by trial & error
-'''from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA
 pca=PCA(n_components=None)
 xTrain=pca.fit_transform(xTrain)
 xTest=pca.fit_transform(xTest)
-variance=pca.explained_variance_ratio_'''
+variance=pca.explained_variance_ratio_
+'''
 from sklearn.decomposition import PCA
 pca=PCA(n_components=2)
 xTrain=pca.fit_transform(xTrain)

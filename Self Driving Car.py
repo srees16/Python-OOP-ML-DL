@@ -8,6 +8,8 @@ import torch.optim as optim
 import torch.autograd as autograd
 from torch.autograd import Variable
 from random import random,randint
+#print(torch.__version__)
+
 #Creating the architecture of neural network
 class Network(nn.module):
     def __init__(self,input_size,nb_action):
@@ -20,6 +22,8 @@ class Network(nn.module):
         x=f.relu(self.fc1(state))
         qValues=self.fc2(x)
         return qValues
+
+
 #Implementing experience play
 class ReplayMemory(object):
     def __init__(self,capacity):
@@ -32,6 +36,7 @@ class ReplayMemory(object):
     def sample(self,batch_size):
         samples=zip(*random.sample(self.memory,batch_size))
         return map(lambda x:Variable(torch.cat(x,0)),samples)
+
 #Implementing the Deep Q learining
 class Dqn():
     def __init__(self,input_size,nb_action,gamma):
@@ -55,17 +60,35 @@ class Dqn():
         self.optimizer.zero_grad()
         td_loss.backward(retain_variables=True)
         self.optimizer.step()
-    def update(self,)
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+    def update(self, reward, new_signal):
+        new_state = torch.Tensor(new_signal).float().unsqueeze(0)
+        self.memory.push((self.last_state, new_state, torch.LongTensor([int(self.last_action)]), torch.Tensor([self.last_reward])))
+        action = self.select_action(new_state)
+        if len(self.memory.memory) > 100:
+            batch_state, batch_next_state, batch_action, batch_reward = self.memory.sample(100)
+            self.learn(batch_state, batch_next_state, batch_reward, batch_action)
+        self.last_action = action
+        self.last_state = new_state
+        self.last_reward = reward
+        self.reward_window.append(reward)
+        if len(self.reward_window) > 1000:
+            del self.reward_window[0]
+        return action
+    
+    def score(self):
+        return sum(self.reward_window)/(len(self.reward_window)+1.)
+    
+    def save(self):
+        torch.save({'state_dict': self.model.state_dict(),
+                    'optimizer' : self.optimizer.state_dict(),
+                   }, 'last_brain.pth')
+    
+    def load(self):
+        if os.path.isfile('last_brain.pth'):
+            print("=> loading checkpoint... ")
+            checkpoint = torch.load('last_brain.pth')
+            self.model.load_state_dict(checkpoint['state_dict'])
+            self.optimizer.load_state_dict(checkpoint['optimizer'])
+            print("done !")
+        else:
+            print("no checkpoint found...")

@@ -1,4 +1,4 @@
-#Auto encoders
+# Auto encoders
 import numpy as np
 import pandas as pd
 import torch
@@ -7,19 +7,19 @@ import torch.nn.parallel
 import torch.optim as optim
 import torch.utils.data
 from torch.autograd import Variable
-#Importing the dataset
+# Importing the dataset
 movies=pd.read_csv('ml-1m/movies.dat',sep='::',header=None,engine='python',encoding='latin-1')
 ratings=pd.read_csv('ml-1m/ratings.dat',sep='::',header=None,engine='python',encoding='latin-1')
 users=pd.read_csv('ml-1m/users.dat',sep='::',header=None,engine='python',encoding='latin-1')
-#Preparing training & test set
+# Preparing training & test set
 trainSet=pd.read_csv('ml-100k/u1.base',delimiter='\t')
 trainSet=np.array(trainSet,dtype='int')
 testSet=pd.read_csv('ml-100k/u1.test',delimiter='\t')
 testSet=np.array(testSet,dtype='int')
-#Getting the no of users and movies
+# Getting the no of users and movies
 n_users=int(max(max(trainSet[:,0]),max(testSet[:,0])))
 n_movies=int(max(max(trainSet[:,1]),max(testSet[:,1])))
-#Converting the data into an array with users in rows and movies in columns
+# Converting the data into an array with users in rows and movies in columns
 def convert(data):
     new_data=[]
     for id_users in range(1,n_users+1):
@@ -31,10 +31,10 @@ def convert(data):
     return new_data
 trainSet=convert(trainSet)
 testSet=convert(testSet)
-#Converting data into torch tensors
+# Converting data into torch tensors
 trainSet=torch.FloatTensor(trainSet)
 testSet=torch.FloatTensor(testSet)
-#Creating the architecture of the neural network
+# Creating the architecture of the neural network
 class SAE(nn.Module):
     def __init__(self,):
         super(SAE,self).__init__()
@@ -52,7 +52,7 @@ class SAE(nn.Module):
 sae=SAE()
 criterion=nn.MSELoss()
 optimizer=optim.RMSprop(sae.parameters(),lr=0.01,weight_decay=0.5)
-#Training the SAE
+# Training the SAE
 n_epoch=200
 for epoch in range(1,n_epoch+1):
     trainLoss=0
@@ -70,7 +70,7 @@ for epoch in range(1,n_epoch+1):
             s+=1.
             optimizer.step()
     print('Epoch: '+str(epoch)+' Loss: '+str(trainLoss/s))
-#Testing the SAE
+# Testing the SAE
 testLoss=0
 s=0.
 for id_user in range(n_users):
